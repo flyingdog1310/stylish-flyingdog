@@ -1,0 +1,25 @@
+{
+  "name": "stylish-flyingdog",
+  "version": "1.0.0",
+  "description": "fashion retail website",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "dev": "node --env-file=.env app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "flyingdog1310",
+  "license": "MIT",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.556.0",
+    "argon2": "^0.30.3",
+    "ejs": "^3.1.10",
+    "express": "^4.18.2",
+    "ioredis": "^5.3.1",
+    "jsonwebtoken": "^9.0.0",
+    "multer": "^1.4.5-lts.1",
+    "multer-s3": "^3.0.1",
+    "mysql2": "^3.1.2",
+    "socket.io": "^4.6.1"
+  }
+}
