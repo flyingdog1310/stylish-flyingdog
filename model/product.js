@@ -1,6 +1,7 @@
 import { pool } from "../util/mysql.js";
+import { redis } from "../util/redis.js";
 //---------------Create Product----------------------------------------
-export async function createProduct(
+async function createProduct(
     category,
     title,
     description,
@@ -56,59 +57,55 @@ export async function createProduct(
 
 //---------------Product List API--------------------------------------
 
+function getDistinctColors(variants) {
+    const colors = [];
+    const colorMap = {};
+    for (const i in variants) {
+        if (!colorMap[variants[i].color_code]) {
+            colorMap[variants[i].color_code] = true;
+            colors.push({ code: variants[i].color_code, name: variants[i].color_name });
+        }
+    }
+    return colors;
+}
+
+function getDistinctSizes(variants) {
+    const sizes = [];
+    const sizeMap = {};
+    for (const i in variants) {
+        if (!sizeMap[variants[i].size]) {
+            sizeMap[variants[i].size] = true;
+            sizes.push(variants[i].size);
+        }
+    }
+    return sizes;
+}
+
 async function getVariants(id) {
     const [variants] = await pool.query(
         `
-      SELECT variants.color_name,variants.color_code,variants.size,variants.stock
-      FROM variants
-      WHERE product_id =?
-      `,
+    SELECT 
+        variants.color_name, variants.color_code, variants.size, variants.stock
+    FROM 
+        variants
+    WHERE 
+        product_id = ?
+    `,
         [id]
     );
     return variants;
 }
 
-function getColors(variantsArr) {
-    const newColor = [];
-    for (let i = 0; i < variantsArr.length; i++) {
-        newColor[i] = {};
-        newColor[i].code = variantsArr[i].color_code;
-        newColor[i].name = variantsArr[i].color_name;
-    }
-
-    for (let i = 0; i < newColor.length; i++) {
-        for (let j = i + 1; j < newColor.length; j++) {
-            if (newColor[i].code === newColor[j].code) {
-                newColor.splice(i, 1);
-            }
-        }
-    }
-    return newColor;
-}
-
-function getSizes(variantsArr) {
-    const newSizes = [];
-    for (let i = 0; i < variantsArr.length; i++) {
-        newSizes[i] = variantsArr[i].size;
-    }
-
-    for (let i = 0; i < newSizes.length; i++) {
-        for (let j = i + 1; j < newSizes.length; j++) {
-            if (newSizes[i] === newSizes[j]) {
-                newSizes.splice(i, 1);
-            }
-        }
-    }
-    return newSizes;
-}
-
 async function getImages(id) {
     const [rows] = await pool.query(
         `
-      SELECT images.image
-      FROM images
-      WHERE product_id =?
-      `,
+    SELECT 
+        images.image
+    FROM 
+        images
+    WHERE 
+        product_id = ?
+    `,
         [id]
     );
     let images = await rows.map(function (obj) {
@@ -117,39 +114,51 @@ async function getImages(id) {
     return images;
 }
 
-export async function getProduct(category, paging) {
+async function getProduct(category, paging) {
     let products;
     let pages;
     if (category == "all") {
         [products] = await pool.query(
             `
-          SELECT product.id, product.category,product.title,product.description,product.price,product.texture,product.wash,product.place,product.note,product.story,product.main_image
-          FROM product 
-          LIMIT ? , 6
-          `,
+        SELECT 
+            product.id, product.category, product.title, product.description, product.price, product.texture, product.wash, product.place, product.note, product.story, product.main_image
+        FROM 
+            product 
+        LIMIT 
+            ? , 6
+        `,
             [paging * 6]
         );
         [[pages]] = await pool.query(
             `
-            SELECT COUNT(*)
-            FROM product 
-            `
+        SELECT 
+            COUNT(*)
+        FROM 
+            product 
+        `
         );
     } else {
         [products] = await pool.query(
             `
-      SELECT product.id, product.category,product.title,product.description,product.price,product.texture,product.wash,product.place,product.note,product.story,product.main_image
-      FROM product 
-      WHERE product.category = ?
-      LIMIT ? , 6
-      `,
+        SELECT 
+            product.id, product.category, product.title, product.description, product.price, product.texture, product.wash, product.place, product.note, product.story, product.main_image
+        FROM 
+            product 
+        WHERE 
+            product.category = ?
+        LIMIT 
+            ? , 6
+        `,
             [category, paging * 6]
         );
         [[pages]] = await pool.query(
             `
-        SELECT COUNT(*)
-        FROM product 
-        WHERE product.category= ?
+        SELECT 
+            COUNT(*)
+        FROM 
+            product 
+        WHERE 
+            product.category= ?
         `,
             [category]
         );
@@ -158,8 +167,8 @@ export async function getProduct(category, paging) {
     for (let i = 0; i < products.length; i++) {
         let product = products[i];
         let variants = await getVariants(product.id);
-        product.colors = getColors(variants);
-        product.sizes = getSizes(variants);
+        product.colors = getDistinctColors(variants);
+        product.sizes = getDistinctSizes(variants);
         for (let i = 0; i < variants.length; i++) {
             delete variants[i].color_name;
         }
@@ -171,8 +180,8 @@ export async function getProduct(category, paging) {
 }
 //--------------Product Search API-------------------------------------
 
-export async function getProductSearch(keyword, paging) {
-    let [rows] = await pool.query(
+async function getProductSearch(keyword, paging) {
+    let [products] = await pool.query(
         `
       SELECT product.id, product.category,product.title,product.description,product.price,product.texture,product.wash,product.place,product.note,product.story,product.main_image
       FROM product 
@@ -190,11 +199,11 @@ export async function getProductSearch(keyword, paging) {
         [`%${keyword}%`]
     );
     let final = [];
-    for (let i = 0; i < rows.length; i++) {
-        let product = rows[i];
+    for (let i = 0; i < products.length; i++) {
+        let product = products[i];
         let variants = await getVariants(product.id);
-        product.colors = getColors(variants);
-        product.sizes = getSizes(variants);
+        product.colors = getDistinctColors(variants);
+        product.sizes = getDistinctSizes(variants);
         for (let i = 0; i < variants.length; i++) {
             delete variants[i].color_name;
         }
@@ -204,8 +213,9 @@ export async function getProductSearch(keyword, paging) {
     }
     return [final, pages["COUNT(*)"]];
 }
+
 //------------- Product Detail API-------------------------------------
-export async function getProductDetail(id) {
+async function getProductDetail(id) {
     let [rows] = await pool.query(
         `
       SELECT product.id, product.category,product.title,product.description,product.price,product.texture,product.wash,product.place,product.note,product.story,product.main_image
@@ -221,8 +231,8 @@ export async function getProductDetail(id) {
         for (let i = 0; i < rows.length; i++) {
             let product = rows[i];
             let variants = await getVariants(product.id);
-            product.colors = getColors(variants);
-            product.sizes = getSizes(variants);
+            product.colors = getDistinctColors(variants);
+            product.sizes = getDistinctSizes(variants);
             for (let i = 0; i < variants.length; i++) {
                 delete variants[i].color_name;
             }
@@ -233,3 +243,5 @@ export async function getProductDetail(id) {
         return final;
     }
 }
+
+export { getProduct, getProductSearch, getProductDetail, getVariants, getImages, createProduct };

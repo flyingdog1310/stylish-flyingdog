@@ -3,39 +3,7 @@ const router = express.Router();
 import { getProduct, getProductSearch, getProductDetail } from "../model/product.js";
 import { staticUrlFixer } from "../util/url.js";
 
-async function productListAPI(target, page) {
-    const productList = await getProduct(target, page);
-    if (productList[1] - page * 6 <= 0) {
-        return "no product on this page";
-    }
-    if (productList[1] - page * 6 <= 6) {
-        productList[0] = staticUrlFixer(productList[0], "main_image");
-        return { data: productList[0] };
-    }
-    if (productList[1] - page * 6 > 6) {
-        productList[0] = staticUrlFixer(productList[0], "main_image");
-        display.next_paging = 1 + Number(page);
-        return { data: productList[0] };
-    }
-}
-
-async function productSearchAPI(keyword, page) {
-    const productList = await getProductSearch(keyword, page);
-    if (productList[1] - page * 6 <= 0) {
-        return "no product on this page";
-    }
-    if (productList[1] - page * 6 <= 6) {
-        productList[0] = staticUrlFixer(productList[0], "main_image");
-        return { data: productList[0] };
-    }
-    if (productList[1] - page * 6 > 6) {
-        productList[0] = staticUrlFixer(productList[0], "main_image");
-        display.next_paging = 1 + Number(page);
-        return { data: productList[0] };
-    }
-}
-
-//get ----/products/category
+//get ----/products/:category
 router.get(["/all", "/men", "/women", "/accessories"], async (req, res) => {
     const category = req.path.slice(1);
     let page = Math.floor(req.query.paging) || 0;
@@ -43,7 +11,13 @@ router.get(["/all", "/men", "/women", "/accessories"], async (req, res) => {
         res.status(403).json("Page number should be positive integer");
         return;
     }
-    res.json(await productListAPI(category, page));
+    const productList = await getProduct(category, page);
+    if (productList.length === 0) {
+        res.status(400).json("No product in this page.");
+        return;
+    }
+    productList[0] = staticUrlFixer(productList[0], "main_image");
+    res.status(200).json({ data: productList[0] });
     return;
 });
 
@@ -51,15 +25,21 @@ router.get(["/all", "/men", "/women", "/accessories"], async (req, res) => {
 router.get("/search", async (req, res) => {
     let keyword = req.query.keyword;
     let page = Math.floor(req.query.paging) || 0;
-    if (keyword) {
-        if (isNaN(page) || page < 0) {
-            res.status(403).json("Page number should be positive integer");
-            return;
-        }
-        res.json(await productSearchAPI(keyword, page));
+    if (!keyword) {
+        res.status(400).json("keyword is required.");
         return;
     }
-    res.status(400).json("keyword is required.");
+    if (isNaN(page) || page < 0) {
+        res.status(403).json("Page number should be positive integer");
+        return;
+    }
+    const productList = await getProductSearch(keyword, page);
+    if (productList.length === 0) {
+        res.status(400).json("No product in this page.");
+        return;
+    }
+    productList[0] = staticUrlFixer(productList[0], "main_image");
+    res.status(200).json({ data: productList[0] });
     return;
 });
 
