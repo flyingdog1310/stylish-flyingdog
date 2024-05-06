@@ -1,6 +1,6 @@
 import express from "express";
 const router = express.Router();
-import { getProduct, getProductSearch, getProductDetail } from "../model/product.js";
+import { getProduct, getProductSearch, getProductDetail } from "../models/product.js";
 import { staticUrlFixer } from "../util/url.js";
 
 //get ----/products/:category

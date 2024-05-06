@@ -1,6 +1,6 @@
 import express from "express";
 const router = express.Router();
-import { getCampaigns } from "../model/marketing.js";
+import { getCampaigns } from "../models/marketing.js";
 import { staticUrlFixer } from "../util/url.js";
 
 //get------/marketing/campaigns

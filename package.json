@@ -1,14 +1,18 @@
 {
-  "name": "stylish-flyingdog",
+  "name": "space-stylish",
   "version": "1.0.0",
-  "description": "fashion retail website",
+  "description": "e-commerce website",
   "type": "module",
   "main": "app.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/flyingdog1310/space-stylish.git"
+  },
   "scripts": {
     "dev": "node --env-file=.env app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "flyingdog1310",
+  "author": "Da-Hsing Liu",
   "license": "MIT",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.556.0",

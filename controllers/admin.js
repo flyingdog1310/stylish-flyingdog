@@ -2,10 +2,10 @@ import express from "express";
 const router = express.Router();
 import { verifyJWT } from "../util/middleware.js";
 import { upload } from "../util/multer.js";
-import { createProduct } from "../model/product.js";
-import { createCampaign } from "../model/marketing.js";
-import { createRole, assignRole, getUserAccess } from "../model/user.js";
-import { createAzoleOrder } from "../model/order.js";
+import { createProduct } from "../models/product.js";
+import { createCampaign } from "../models/marketing.js";
+import { createRole, assignRole, getUserAccess } from "../models/user.js";
+import { createAzoleOrder } from "../models/order.js";
 
 router.use(verifyJWT);
 

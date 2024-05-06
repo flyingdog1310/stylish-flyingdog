@@ -33,22 +33,22 @@ app.get("/facebook", async (req, res) => {
     res.render("facebook");
 });
 
-import { adminAPI } from "./controller/admin.js";
+import { adminAPI } from "./controllers/admin.js";
 app.use("/admin", adminAPI);
 
-import { productAPI } from "./controller/product.js";
+import { productAPI } from "./controllers/product.js";
 app.use(`/api/${apiVersion}/products`, productAPI);
 
-import { marketingAPI } from "./controller/marketing.js";
+import { marketingAPI } from "./controllers/marketing.js";
 app.use(`/api/${apiVersion}/marketing`, marketingAPI);
 
-import { userAPI } from "./controller/user.js";
+import { userAPI } from "./controllers/user.js";
 app.use(`/api/${apiVersion}/user`, userAPI);
 
-import { orderAPI } from "./controller/order.js";
+import { orderAPI } from "./controllers/order.js";
 app.use(`/api/${apiVersion}/order`, orderAPI);
 
-import { reportAPI } from "./controller/report.js";
+import { reportAPI } from "./controllers/report.js";
 app.use(`/api/${apiVersion}/report`, reportAPI);
 
 app.get("/health-check", async (req, res) => {

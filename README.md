@@ -1,7 +1,3 @@
-# Stylish
+# Space-Stylish
 
-1. the project index is online at [http://3.113.103.79](http://3.113.103.79)
-
-2. the product create page is at[http://3.113.103.79/admin/product](http://3.113.103.79/admin/product)
-
-3. Table design currently as following ![design](docs/tableDesign.jpg)
+1. Table design currently as following ![design](docs/tableDesign.jpg)

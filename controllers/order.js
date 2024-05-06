@@ -1,7 +1,7 @@
 import express from "express";
 const router = express.Router();
 import jwt from "jsonwebtoken";
-import { checkOrder, createOrder } from "../model/order.js";
+import { checkOrder, createOrder } from "../models/order.js";
 
 //verify jwt
 router.use("/checkout", async function verifyJWT(req, res, next) {

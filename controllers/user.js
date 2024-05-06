@@ -3,7 +3,7 @@ const router = express.Router();
 import { upload } from "../util/multer.js";
 import jwt from "jsonwebtoken";
 import argon2 from "argon2";
-import { createUser, createFbUser, checkUser, userSignIn, signInSuccess, getUserprofile } from "../model/user.js";
+import { createUser, createFbUser, checkUser, userSignIn, signInSuccess, getUserprofile } from "../models/user.js";
 
 //hash password
 async function hashPassword(password) {

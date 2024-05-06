@@ -1,6 +1,6 @@
 import express from "express";
 const router = express.Router();
-import { getOrder, getTotal, getSoldColor, getSoldPrice, getTopFive } from "../model/report.js";
+import { getOrder, getTotal, getSoldColor, getSoldPrice, getTopFive } from "../models/report.js";
 
 //get------/marketing/campaigns
 
